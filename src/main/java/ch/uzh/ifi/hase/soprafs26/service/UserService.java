@@ -15,6 +15,8 @@ import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import java.util.List;
 import java.util.UUID;
 
+import java.time.LocalDateTime;
+
 /**
  * User Service
  * This class is the "worker" and responsible for all functionality related to
@@ -41,14 +43,50 @@ public class UserService {
 	public User createUser(User newUser) {
 		newUser.setToken(UUID.randomUUID().toString());
 		newUser.setStatus(UserStatus.OFFLINE);
+		newUser.setCreationDate(LocalDateTime.now());
+
+		if (newUser.getName() == null) {
+			newUser.setName(newUser.getUsername());
+		}
+
 		checkIfUserExists(newUser);
+
+		//No empty password field
+		if (newUser.getPassword() == null || newUser.getPassword().isBlank()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please enter a password!");
+		}
+
 		// saves the given entity but data is only persisted in the database once
 		// flush() is called
 		newUser = userRepository.save(newUser);
 		userRepository.flush();
 
 		log.debug("Created Information for User: {}", newUser);
+		newUser.setStatus(UserStatus.ONLINE);
 		return newUser;
+	}
+
+	public User loginUser(User userInput) {
+		User userByUsername = userRepository.findByUsername(userInput.getUsername());
+		if  (userByUsername == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Username not found. Please register first.");
+		}
+
+		if (!userByUsername.getPassword().equals(userInput.getPassword())) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password!");
+		}
+
+		userByUsername.setStatus(UserStatus.ONLINE);
+
+		return userRepository.save(userByUsername);
+	}
+
+	public void logoutUser(Long id) {
+		User user = userRepository.findById(id).orElse(null);
+		if (user != null) {
+			user.setStatus(UserStatus.OFFLINE);
+			userRepository.save(user);
+		}
 	}
 
 	/**
@@ -65,7 +103,7 @@ public class UserService {
 		User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
 		User userByName = userRepository.findByName(userToBeCreated.getName());
 
-		String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
+		String baseErrorMessage = "This username is already taken.";
 		if (userByUsername != null && userByName != null) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					String.format(baseErrorMessage, "username and the name", "are"));
