@@ -55,6 +55,9 @@ public class UserService {
 		if (newUser.getPassword() == null || newUser.getPassword().isBlank()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please enter a password!");
 		}
+		if (newUser.getBio() == null) {
+				newUser.setBio(""); 
+			}
 
 		// saves the given entity but data is only persisted in the database once
 		// flush() is called
@@ -103,6 +106,30 @@ public class UserService {
 		userRepository.flush();
 	}
 
+
+	public void updateUserProfile(Long id, User userInput) {
+    User userById = userRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+    if (userInput.getUsername() != null && !userInput.getUsername().isBlank()) {
+        userById.setUsername(userInput.getUsername());
+    }
+    
+    if (userInput.getBio() != null) {
+        userById.setBio(userInput.getBio());
+    }
+
+    userRepository.save(userById);
+    userRepository.flush();
+}
+
+	public User getUserById(Long id) {
+		return userRepository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+					String.format("User with ID %d was not found", id)));
+		}
+
+		
 	/**
 	 * This is a helper method that will check the uniqueness criteria of the
 	 * username and the name

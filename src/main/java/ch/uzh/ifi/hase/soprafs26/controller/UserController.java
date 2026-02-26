@@ -75,11 +75,28 @@ public class UserController {
 	@PutMapping("/users/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@ResponseBody
-	public void updatePassword(@PathVariable("id") Long id, 
-								@RequestBody UserPostDTO userPostDTO, 
-								@RequestHeader("Authorization") String token) {
+	public void updateUser(@PathVariable("id") Long id, 
+						@RequestBody UserPostDTO userPostDTO, 
+						@RequestHeader(value = "Authorization", required = false) String token) {
 		
-		String newPassword = userPostDTO.getPassword();
-		userService.updatePassword(id, newPassword, token);
+		// 1. Umwandlung des DTOs in eine Entity (für Bio, Username etc.)
+		User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+		
+		// 2. Falls ein Passwort im Body ist, behandeln wir es als Passwort-Update
+		if (userPostDTO.getPassword() != null) {
+			userService.updatePassword(id, userPostDTO.getPassword(), token);
+		}
+		
+		// 3. Andere Profilfelder (Bio, etc.) aktualisieren
+		userService.updateUserProfile(id, userInput);
+	}
+	
+
+	@GetMapping("/users/{userId}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public UserGetDTO getUser(@PathVariable Long userId) {
+		User user = userService.getUserById(userId);
+		return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
 	}
 }
