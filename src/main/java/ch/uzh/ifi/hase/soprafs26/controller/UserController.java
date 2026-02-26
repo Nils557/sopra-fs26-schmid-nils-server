@@ -71,4 +71,15 @@ public class UserController {
 	public void logoutUser(@PathVariable("id") Long id) {
 		userService.logoutUser(id);
 	}
+
+	@PutMapping("/users/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@ResponseBody
+	public void updatePassword(@PathVariable("id") Long id, 
+								@RequestBody UserPostDTO userPostDTO, 
+								@RequestHeader("Authorization") String token) {
+		
+		String newPassword = userPostDTO.getPassword();
+		userService.updatePassword(id, newPassword, token);
+	}
 }

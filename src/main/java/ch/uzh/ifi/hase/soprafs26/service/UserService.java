@@ -89,6 +89,20 @@ public class UserService {
 		}
 	}
 
+	public void updatePassword(Long id, String newPassword, String token) {
+		User userById = userRepository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+		if (token == null || !userById.getToken().equals(token)) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
+				"You are not allowed to change this password!");
+		}
+
+		userById.setPassword(newPassword);
+		userRepository.save(userById);
+		userRepository.flush();
+	}
+
 	/**
 	 * This is a helper method that will check the uniqueness criteria of the
 	 * username and the name
