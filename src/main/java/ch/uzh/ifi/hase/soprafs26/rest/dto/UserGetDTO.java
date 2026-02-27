@@ -5,21 +5,21 @@ import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 public class UserGetDTO {
 
 	private Long id;
-	private String name;
+	//private String name;
 	private String username;
 	private UserStatus status;
 	private String bio;
-	private String password;
-	private String creationDate;
-	private String token;
+	//private String password;
+	private String creation_date;
+	//private String token;
 
-	public String getToken() {
-		return token;
-	}
+	//public String getToken() {
+	//	return token;
+	//}
 
-	public void setToken(String token) {
-		this.token = token;
-	}
+	//public void setToken(String token) {
+	//	this.token = token;
+	//}
 
 	public Long getId() {
 		return id;
@@ -29,13 +29,13 @@ public class UserGetDTO {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
-	}
+	//public String getName() {
+	//	return name;
+	//}
 
-	public void setName(String name) {
-		this.name = name;
-	}
+	//public void setName(String name) {
+	//	this.name = name;
+	//}
 
 	public String getUsername() {
 		return username;
@@ -53,13 +53,13 @@ public class UserGetDTO {
 		this.status = status;
 	}
 
-	public String getPassword() {
-		return password; 
-	}
+	//public String getPassword() {
+	//	return password; 
+	//}
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+	//public void setPassword(String password) {
+	//	this.password = password;
+	//}
 
 	public String getBio() {
 		return bio;
@@ -69,11 +69,11 @@ public class UserGetDTO {
 		this.bio = bio;
 	}
 
-	public String getCreationDate() {
-		return creationDate;
+	public String getCreation_date() {
+		return creation_date;
 	}
 
-	public void setCreationDate(String creationDate) {
-		this.creationDate = creationDate;
+	public void setCreation_date(String creationDate) {
+		this.creation_date = creationDate;
 	}
 }

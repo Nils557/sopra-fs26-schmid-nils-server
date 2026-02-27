@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,23 +47,23 @@ public class UserController {
 	@PostMapping("/users")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
-	public UserGetDTO createUser(@RequestBody UserPostDTO userPostDTO) {
-		// convert API user to internal representation
-		User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
-		// create user
+	public UserGetDTO createUser(@RequestBody UserPostDTO userPostDTO, HttpServletResponse response) {
+		User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 		User createdUser = userService.createUser(userInput);
-		// convert internal representation of user back to API
+		response.addHeader("Authorization", createdUser.getToken());	
+		response.addHeader("Access-Control-Expose-Headers", "Authorization");
 		return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
 	}
 
 	@PostMapping("/login")
-	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public UserGetDTO loginUser(@RequestBody UserPostDTO userPostDTO) {
+	public UserGetDTO loginUser(@RequestBody UserPostDTO userPostDTO, HttpServletResponse response) {
 		User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
-		User authorizedUser = userService.loginUser(userInput);
-		return DTOMapper.INSTANCE.convertEntityToUserGetDTO(authorizedUser);
+		User user = userService.loginUser(userInput);
+		response.addHeader("Authorization", user.getToken());
+		response.addHeader("Access-Control-Expose-Headers", "Authorization");
+		return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
 	}
 
 	@PostMapping("/logout/{id}")
@@ -79,15 +80,12 @@ public class UserController {
 						@RequestBody UserPostDTO userPostDTO, 
 						@RequestHeader(value = "Authorization", required = false) String token) {
 		
-		// 1. Umwandlung des DTOs in eine Entity (für Bio, Username etc.)
 		User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 		
-		// 2. Falls ein Passwort im Body ist, behandeln wir es als Passwort-Update
 		if (userPostDTO.getPassword() != null) {
 			userService.updatePassword(id, userPostDTO.getPassword(), token);
 		}
 		
-		// 3. Andere Profilfelder (Bio, etc.) aktualisieren
 		userService.updateUserProfile(id, userInput);
 	}
 	
