@@ -28,9 +28,9 @@ public interface DTOMapper {
 	@Mapping(source = "password", target = "password")
 	@Mapping(source = "bio", target = "bio")
 
-	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "token", ignore = true)
-	@Mapping(target = "status", ignore = true)
+	@Mapping(target = "id", ignore = true) //ignore = no setter for id done
+	@Mapping(target = "token", ignore = true) //are ignored because it is set by the server not by the user
+	@Mapping(target = "status", ignore = true) //prevents the user from setting it themself
 	@Mapping(target = "creationDate", ignore = true)
 	User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 

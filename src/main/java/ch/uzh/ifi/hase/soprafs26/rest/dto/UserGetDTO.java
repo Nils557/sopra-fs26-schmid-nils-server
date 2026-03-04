@@ -49,7 +49,7 @@ public class UserGetDTO {
 		return creation_date;
 	}
 
-	public void setCreation_date(LocalDateTime creationDate) {  // ← String to LocalDateTime
+	public void setCreation_date(LocalDateTime creationDate) {  //changed it from String to LocalDateTime
 		this.creation_date = creationDate;
 	}
 }
