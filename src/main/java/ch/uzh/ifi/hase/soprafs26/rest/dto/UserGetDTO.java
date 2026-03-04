@@ -1,25 +1,17 @@
 package ch.uzh.ifi.hase.soprafs26.rest.dto;
 
+import java.time.LocalDateTime;
+
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 
 public class UserGetDTO {
 
 	private Long id;
-	//private String name;
 	private String username;
 	private UserStatus status;
 	private String bio;
-	//private String password;
-	private String creation_date;
-	//private String token;
-
-	//public String getToken() {
-	//	return token;
-	//}
-
-	//public void setToken(String token) {
-	//	this.token = token;
-	//}
+	private LocalDateTime creation_date;
+	//Name was deleted, password and Token are in header
 
 	public Long getId() {
 		return id;
@@ -28,14 +20,6 @@ public class UserGetDTO {
 	public void setId(Long id) {
 		this.id = id;
 	}
-
-	//public String getName() {
-	//	return name;
-	//}
-
-	//public void setName(String name) {
-	//	this.name = name;
-	//}
 
 	public String getUsername() {
 		return username;
@@ -53,14 +37,6 @@ public class UserGetDTO {
 		this.status = status;
 	}
 
-	//public String getPassword() {
-	//	return password; 
-	//}
-
-	//public void setPassword(String password) {
-	//	this.password = password;
-	//}
-
 	public String getBio() {
 		return bio;
 	}
@@ -69,11 +45,11 @@ public class UserGetDTO {
 		this.bio = bio;
 	}
 
-	public String getCreation_date() {
+	public LocalDateTime getCreation_date() {
 		return creation_date;
 	}
 
-	public void setCreation_date(String creationDate) {
+	public void setCreation_date(LocalDateTime creationDate) {  // ← String to LocalDateTime
 		this.creation_date = creationDate;
 	}
 }

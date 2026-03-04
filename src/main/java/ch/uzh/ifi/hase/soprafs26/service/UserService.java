@@ -28,53 +28,61 @@ import java.time.LocalDateTime;
 @Transactional
 public class UserService {
 
+	//prints debug/info to the console during runtime
 	private final Logger log = LoggerFactory.getLogger(UserService.class);
 
 	private final UserRepository userRepository;
 
+	//Constructor injection — @Qualifier specifies WHICH repository bean to inject
+    //(matches the "userRepository" name from @Repository("userRepository"))
 	public UserService(@Qualifier("userRepository") UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
 
+	//get all users
 	public List<User> getUsers() {
-		return this.userRepository.findAll();
+		return this.userRepository.findAll(); //built-in: SELECT * FROM users
 	}
 
+	//create a new user
 	public User createUser(User newUser) {
+		//Auto-generate a unique token for authentication (random UUID string)
 		newUser.setToken(UUID.randomUUID().toString());
 		newUser.setStatus(UserStatus.OFFLINE);
 		newUser.setCreationDate(LocalDateTime.now());
-
+		//if no name is given -> username = name
 		if (newUser.getName() == null) {
 			newUser.setName(newUser.getUsername());
 		}
-
+		//check if the username exists else error 404 duplicate
 		checkIfUserExists(newUser);
 
 		//No empty password field
 		if (newUser.getPassword() == null || newUser.getPassword().isBlank()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please enter a password!");
 		}
+		//if no bio is given set it to "" (for Postman)
 		if (newUser.getBio() == null) {
 				newUser.setBio(""); 
 			}
 
 		// saves the given entity but data is only persisted in the database once
-		// flush() is called
+		// flush() is called, forces the SQL to execute immediately
 		newUser = userRepository.save(newUser);
 		userRepository.flush();
-
+		
+		//log the creationdate set the user to online
 		log.debug("Created Information for User: {}", newUser);
 		newUser.setStatus(UserStatus.ONLINE);
 		return newUser;
 	}
-
+	//login an existing user
 	public User loginUser(User userInput) {
 		User userByUsername = userRepository.findByUsername(userInput.getUsername());
 		if  (userByUsername == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Username not found. Please register first.");
 		}
-
+		//password check
 		if (!userByUsername.getPassword().equals(userInput.getPassword())) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password!");
 		}
@@ -84,6 +92,7 @@ public class UserService {
 		return userRepository.save(userByUsername);
 	}
 
+	//logout user
 	public void logoutUser(Long id) {
 		User user = userRepository.findById(id).orElse(null);
 		if (user != null) {
@@ -120,7 +129,7 @@ public class UserService {
     }
 
     userRepository.save(userById);
-    userRepository.flush();
+    userRepository.flush(); //lika actually sending it
 }
 
 	public User getUserById(Long id) {
