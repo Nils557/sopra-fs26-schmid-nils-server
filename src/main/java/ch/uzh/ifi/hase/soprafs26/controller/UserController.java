@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -100,15 +101,15 @@ public class UserController {
 	@ResponseStatus(HttpStatus.NO_CONTENT) //returns 204 NO CONTENT (success, no body)
 	@ResponseBody
 	public void updateUser(@PathVariable("id") Long id, //extracts id from URL
-						@RequestBody UserPostDTO userPostDTO, //reads update data from request body
+						@RequestBody UserPutDTO userPutDTO, //reads update data from request body
 						@RequestHeader(value = "Authorization", required = false) String token) { //reads token from request header
 		
 		//Convert incoming DTO -> internal User entity
-		User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+		User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
 		
 		//If a new password was provided, update it separately (with token auth check)
-		if (userPostDTO.getPassword() != null) {
-			userService.updatePassword(id, userPostDTO.getPassword(), token);
+		if (userPutDTO.getPassword() != null) {
+			userService.updatePassword(id, userPutDTO.getPassword(), token);
 		}
 		//Update the rest of the user's profile (username, bio, etc.)
 		userService.updateUserProfile(id, userInput);

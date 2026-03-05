@@ -7,6 +7,7 @@ import tools.jackson.databind.ObjectMapper;
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 
 import org.junit.jupiter.api.Test;
@@ -175,7 +176,7 @@ public class UserControllerTest {
 		given(userService.getUserById(Mockito.anyLong()))
 			.willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-		// 2. Build a fake HTTP GET request to "/users/1"
+		//Build a fake HTTP GET request to "/users/1"
 		MockHttpServletRequestBuilder getRequest = get("/users/1")
 				.contentType(MediaType.APPLICATION_JSON);
 
@@ -194,7 +195,7 @@ public class UserControllerTest {
 
 		//Create a fake User object with just a username set
     	//This represents the update payload the client sends
-		User updateUser = new User();
+		UserPutDTO updateUser = new UserPutDTO();
 		updateUser.setUsername("Testuser");
 
 		//Tell Mockito: when updateUserProfile() is called with ANY two arguments,
@@ -213,6 +214,23 @@ public class UserControllerTest {
 		mockMvc.perform(putRequest)
 			.andExpect(status().isNoContent()); //204
 
+	}
+
+	@Test
+	public void getUser_unauthenticated_returns401() throws Exception {
+		// simulate a scenario where the request has no valid token,
+		// so the user is not authenticated to access GET /users/{id}
+		given(userService.getUserById(Mockito.anyLong()))
+			.willThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated"));
+
+		//Build a fake HTTP GET request to "/users/1"
+		MockHttpServletRequestBuilder getRequest = get("/users/1")
+				.contentType(MediaType.APPLICATION_JSON);
+				// No Token header
+
+		//Fire the request and assert:
+		mockMvc.perform(getRequest)
+				.andExpect(status().isUnauthorized()); // 401
 	}
 
 	/**

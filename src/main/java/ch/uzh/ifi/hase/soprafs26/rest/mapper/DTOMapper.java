@@ -6,6 +6,7 @@ import org.mapstruct.factory.Mappers;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
 
 /**
  * DTOMapper
@@ -40,4 +41,15 @@ public interface DTOMapper {
 	@Mapping(source = "bio", target = "bio")
 	@Mapping(source = "creationDate", target = "creation_date")
 	UserGetDTO convertEntityToUserGetDTO(User user);
+
+	// Only maps fields the user is allowed to change
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "bio", target = "bio")
+    @Mapping(source = "password", target = "password")
+    @Mapping(target = "id", ignore = true)        // comes from URL path, not body
+    @Mapping(target = "token", ignore = true)      // managed by server
+    @Mapping(target = "status", ignore = true)     // managed by server
+    @Mapping(target = "creationDate", ignore = true) // set once at registration
+    @Mapping(target = "name", ignore = true)       // name is not editable
+    User convertUserPutDTOtoEntity(UserPutDTO userPutDTO);
 }
